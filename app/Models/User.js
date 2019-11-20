@@ -42,6 +42,10 @@ class User extends Model {
   comments() {
     return this.hasMany('App/Models/Comments')
   }
+
+  avatar() {
+    return this.hasOne('App/Models/Image')
+  }
 }
 
 module.exports = User

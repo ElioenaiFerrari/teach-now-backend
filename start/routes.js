@@ -26,13 +26,19 @@ Route.group(() => {
   Route.post('/users', 'UserController.store')
   Route.get('/users', 'UserController.index')
   Route.get('/users/:user_id', 'UserController.show')
+  //Imagem
+  Route.post('/users/images', 'ImageController.store').middleware(['auth'])
 })
 //matérias
 Route.group(() => {
-  Route.resource('subjects', 'SubjectController').apiOnly().middleware(['auth'])
+  Route.resource('subjects', 'SubjectController')
+    .apiOnly()
+    .middleware(['auth'])
 })
 
 Route.group(() => {
-  Route.resource('comments', 'CommentController').apiOnly().middleware(['auth'])
+  Route.resource('comments', 'CommentController')
+    .apiOnly()
+    .middleware(['auth'])
 })
 
