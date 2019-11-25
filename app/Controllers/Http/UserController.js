@@ -3,7 +3,7 @@
 const User = use('App/Models/User')
 
 class UserController {
-    async store({ request, params }) {
+    async store({ request }) {
         const data = await request.only([
             'name',
             'email',
@@ -24,15 +24,28 @@ class UserController {
     }
 
     async index() {
-        const user = await User.all()
+        const users = await User.all()
+
+        return users
+    }
+
+    async show({ params }) {
+        const user = await User.find(params.id)
 
         return user
     }
 
-    async show({ params }) {
-        const user = await User.find(params.user_id)
+    async destroy({ params, response, auth }) {
+        const user = await User.findOrFail(params.id)
 
-        return user
+        if (params.id != auth.user.id) {
+            return response
+                .status(401)
+                .send('Você não tem permissão para isso')
+        }
+        await user.delete()
+
+        return 'Usuário deletado com sucesso!'
     }
 }
 

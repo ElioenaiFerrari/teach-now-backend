@@ -20,7 +20,10 @@ class SubjectController {
    * @param {View} ctx.view
    */
   async index() {
-    const subjects = await Subject.all()
+    const subjects = await Subject
+      .query()
+      .with('monitor')
+      .fetch()
 
     return subjects
   }
@@ -34,7 +37,7 @@ class SubjectController {
    * @param {Response} ctx.response
    */
   async store({ request, auth }) {
-    const data = request.only(['field', 'specify', 'description'])
+    const data = request.only(['field', 'specify', 'title'])
 
     const subject = await Subject.create({ user_id: auth.user.id, ...data })
 
@@ -51,21 +54,9 @@ class SubjectController {
    * @param {View} ctx.view
    */
   async show({ params }) {
-    const subject = await Subject.find(params.id)
+    const subject = await Subject.findOrFail(params.id)
 
     return subject
-  }
-
-  /**
-   * Render a form to update an existing subject.
-   * GET subjects/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit({ params, request, response, view }) {
   }
 
   /**
@@ -76,7 +67,20 @@ class SubjectController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update({ params, request, response }) {
+  async update({ params, auth, response, request }) {
+    const data = request.only(['field', 'specify', 'title'])
+    const subject = await Subject.findOrFail(params.id)
+
+    if (subject.user_id != auth.user.id) {
+      return response
+        .status(401)
+        .send('Você não tem permissão para fazer isso!')
+    }
+    subject.merge(data)
+
+    await subject.save()
+
+    return subject
   }
 
   /**
@@ -87,7 +91,17 @@ class SubjectController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async destroy({ params, request, response }) {
+  async destroy({ params, auth, response }) {
+    const subject = await Subject.findOrFail(params.id)
+
+    if (subject.user_id != auth.user.id) {
+      return response
+        .status(401)
+        .send('Você não tem permissão para fazer isso!')
+    }
+    await subject.delete()
+
+    return 'Matéria deletada com sucesso!'
   }
 }
 

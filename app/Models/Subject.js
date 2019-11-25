@@ -4,8 +4,8 @@
 const Model = use('Model')
 
 class Subject extends Model {
-    students() {
-        return this.hasMany('App/Models/User')
+    monitor() {
+        return this.belongsTo('App/Models/User')
     }
 }
 

@@ -8,16 +8,23 @@ class SubjectSchema extends Schema {
   up() {
     this.create('subjects', (table) => {
       table.increments()
-      table.integer('user_id')
+      table
+        .integer('user_id')
         .unsigned()
         .notNullable()
         .references('id')
         .inTable('users')
         .onUpdate('CASCADE')
-        .onDelete('CASCADE')
-      table.string('field', 40).notNullable()
-      table.string('specify', 80).notNullable()
-      table.string('description', 200).notNullable()
+        .onDelete('RESTRICT')
+      table
+        .string('field', 40)
+        .notNullable()
+      table
+        .string('specify', 80)
+        .notNullable()
+      table
+        .string('title', 200)
+        .notNullable()
       table.timestamps()
     })
   }

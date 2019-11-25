@@ -12,7 +12,11 @@ class CommentSchema extends Schema {
         .notNullable()
         .references('id')
         .inTable('users')
-      table.string('comment', 120).notNullable()
+        .onUpdate('CASCADE')
+        .onDelete('RESTRICT')
+      table
+        .string('comment', 120)
+        .notNullable()
       table.timestamps()
     })
   }

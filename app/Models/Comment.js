@@ -4,8 +4,8 @@
 const Model = use('Model')
 
 class Comment extends Model {
-    user() {
-        this.belongsTo('App/Models/User')
+    owner() {
+        return this.belongsTo('App/Models/User')
     }
 }
 

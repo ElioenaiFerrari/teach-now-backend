@@ -40,7 +40,7 @@ class User extends Model {
   }
 
   comments() {
-    return this.hasMany('App/Models/Comments')
+    return this.hasMany('App/Models/Comment')
   }
 
   avatar() {

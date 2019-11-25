@@ -4,6 +4,7 @@
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
 
+const Comment = use('App/Models/Comment')
 /**
  * Resourceful controller for interacting with comments
  */
@@ -17,7 +18,13 @@ class CommentController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index({ request, response, view }) {
+  async index() {
+    const comments = await Comment
+      .query()
+      .with('owner')
+      .fetch()
+
+    return comments
   }
 
   /**
@@ -28,7 +35,12 @@ class CommentController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store({ request, response }) {
+  async store({ request, auth }) {
+    const data = request.only(['comment'])
+
+    const comment = await Comment.create({ user_id: auth.user.id, ...data })
+
+    return comment
   }
 
   /**
@@ -40,7 +52,10 @@ class CommentController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async show({ params, request, response, view }) {
+  async show({ params }) {
+    const comment = await Comment.findOrFail(params.id)
+
+    return comment
   }
 
   /**
@@ -51,7 +66,20 @@ class CommentController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update({ params, request, response }) {
+  async update({ params, request, response, auth }) {
+    const data = request.only(['comment'])
+    const comment = await Comment.findOrFail(params.id)
+
+    if (comment.user_id != auth.user.id) {
+      return response
+        .status(401)
+        .send('Você não tem permissão para isso!')
+    }
+
+    comment.merge(data)
+    await comment.save()
+
+    return comment
   }
 
   /**
@@ -62,7 +90,18 @@ class CommentController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async destroy({ params, request, response }) {
+  async destroy({ params, auth, response }) {
+    const comment = await Comment.findOrFail(params.id)
+
+    if (comment.user_id != auth.user.id) {
+      return response
+        .status(401)
+        .send('Você não tem permissão para isso!')
+    }
+
+    await comment.delete()
+
+    return 'Comentário deletado com sucesso!'
   }
 }
 
