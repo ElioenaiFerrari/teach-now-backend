@@ -1,6 +1,7 @@
-'use strict'
+'use strict';
 
-const Subject = use('App/Models/Subject')
+const Subject = use('App/Models/Subject');
+const Logger = use('Logger');
 
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
@@ -10,7 +11,7 @@ const Subject = use('App/Models/Subject')
  * Resourceful controller for interacting with subjects
  */
 class SubjectController {
-  /**
+	/**
    * Show a list of all subjects.
    * GET subjects
    *
@@ -19,16 +20,14 @@ class SubjectController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index() {
-    const subjects = await Subject
-      .query()
-      .with('monitor')
-      .fetch()
+	async index({ request }) {
+		Logger.info(`Requisição feita em ${request.url()}`);
+		const subjects = await Subject.query().with('monitor').fetch();
 
-    return subjects
-  }
+		return subjects;
+	}
 
-  /**
+	/**
    * Create/save a new subject.
    * POST subjects
    *
@@ -36,15 +35,15 @@ class SubjectController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store({ request, auth }) {
-    const data = request.only(['field', 'specify', 'title'])
+	async store({ request, auth }) {
+		const data = request.only([ 'field', 'specify', 'title', 'place', 'date', 'hours' ]);
 
-    const subject = await Subject.create({ user_id: auth.user.id, ...data })
+		const subject = await Subject.create({ user_id: auth.user.id, ...data });
 
-    return subject
-  }
+		return subject;
+	}
 
-  /**
+	/**
    * Display a single subject.
    * GET subjects/:id
    *
@@ -53,13 +52,13 @@ class SubjectController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async show({ params }) {
-    const subject = await Subject.findOrFail(params.id)
+	async show({ params }) {
+		const subject = await Subject.findOrFail(params.id);
 
-    return subject
-  }
+		return subject;
+	}
 
-  /**
+	/**
    * Update subject details.
    * PUT or PATCH subjects/:id
    *
@@ -67,23 +66,21 @@ class SubjectController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update({ params, auth, response, request }) {
-    const data = request.only(['field', 'specify', 'title'])
-    const subject = await Subject.findOrFail(params.id)
+	async update({ params, auth, response, request }) {
+		const data = request.only([ 'field', 'specify', 'title', 'place', 'date', 'hours' ]);
+		const subject = await Subject.findOrFail(params.id);
 
-    if (subject.user_id != auth.user.id) {
-      return response
-        .status(401)
-        .send('Você não tem permissão para fazer isso!')
-    }
-    subject.merge(data)
+		if (subject.user_id != auth.user.id) {
+			return response.status(401).send('Você não tem permissão para fazer isso!');
+		}
+		subject.merge(data);
 
-    await subject.save()
+		await subject.save();
 
-    return subject
-  }
+		return subject;
+	}
 
-  /**
+	/**
    * Delete a subject with id.
    * DELETE subjects/:id
    *
@@ -91,18 +88,16 @@ class SubjectController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async destroy({ params, auth, response }) {
-    const subject = await Subject.findOrFail(params.id)
+	async destroy({ params, auth, response }) {
+		const subject = await Subject.findOrFail(params.id);
 
-    if (subject.user_id != auth.user.id) {
-      return response
-        .status(401)
-        .send('Você não tem permissão para fazer isso!')
-    }
-    await subject.delete()
+		if (subject.user_id != auth.user.id) {
+			return response.status(401).send('Você não tem permissão para fazer isso!');
+		}
+		await subject.delete();
 
-    return 'Matéria deletada com sucesso!'
-  }
+		return 'Matéria deletada com sucesso!';
+	}
 }
 
-module.exports = SubjectController
+module.exports = SubjectController;

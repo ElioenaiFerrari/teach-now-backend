@@ -1,9 +1,10 @@
 'use strict'
 
 const User = use('App/Models/User')
+// const Logger = use('Logger')
 
 class UserController {
-    async store({ request }) {
+    async  store({ request }) {
         const data = await request.only([
             'name',
             'email',
@@ -38,7 +39,7 @@ class UserController {
     async destroy({ params, response, auth }) {
         const user = await User.findOrFail(params.id)
 
-        if (params.id != auth.user.id) {
+        if (user.id != auth.user.id) {
             return response
                 .status(401)
                 .send('Você não tem permissão para isso')
@@ -46,6 +47,22 @@ class UserController {
         await user.delete()
 
         return 'Usuário deletado com sucesso!'
+    }
+
+    async update({ request, params, auth, response }) {
+        const data = request.only(['username', 'email', 'password'])
+        const user = await User.findOrFail(params.id)
+
+        if (user.id != auth.user.id) {
+            return response
+                .status(401)
+                .send('Você não tem permissão para isso!')
+        }
+        user.merge(data)
+
+        await user.save()
+
+        return 'Usuário alterado com sucesso!'
     }
 }
 

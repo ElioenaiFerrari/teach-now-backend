@@ -1,4 +1,4 @@
-'use strict'
+"use strict";
 
 /*
 |--------------------------------------------------------------------------
@@ -14,43 +14,20 @@
 */
 
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
-const Route = use('Route')
-const Helpers = use('Helpers')
+const Route = use("Route");
+const Helpers = use("Helpers");
 
-Route.post('/users', 'UserController.store')
-Route.post('/authenticate', 'UserController.authenticate')
+Route.post("/users", "UserController.store");
+Route.post("/authenticate", "UserController.authenticate");
 
 //usuários
 Route.group(() => {
   //usuários
-  //mostrar todos
-  Route.get('/users', 'UserController.index')
-  //mostrar um
-  Route.get('/users/:id', 'UserController.show')
-  //deletar usuário
-  Route.delete('/users/:id', 'UserController.destroy')
+  Route.resource("users", "UserController")
+    .apiOnly()
+    .except("store");
   //matérias
-  Route.resource('subjects', 'SubjectController')
-    .apiOnly()
+  Route.resource("subjects", "SubjectController").apiOnly();
   //comentários
-  Route.resource('comments', 'CommentController')
-    .apiOnly()
-}).middleware(['auth'])
-
-//Envio de imagem
-// Route.post('/upload', async ({ request }) => {
-//   const picture = request.file('picture', {
-//     types: ['image'],
-//     size: '2mb'
-//   })
-
-//   await picture.move(Helpers.tmpPath('uploads'), {
-//     name: Date.now().toString(),
-//     overwrite: true
-//   })
-
-//   if (!picture.moved()) {
-//     return picture.error()
-//   }
-//   return 'File moved'
-// })
+  Route.resource("comments", "CommentController").apiOnly();
+}).middleware(["auth"]);
